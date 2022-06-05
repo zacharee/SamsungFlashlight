@@ -2,15 +2,17 @@ package dev.zwander.samsungflashlight.activities
 
 import android.app.Activity
 import android.content.Intent
-import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
 import dev.zwander.samsungflashlight.R
 import dev.zwander.samsungflashlight.services.FlashlightService
 
-class ToggleFlashlight : AppCompatActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+class ToggleFlashlight : BaseActivity() {
+    override fun onPermissionsDenied() {
+        setResult(Activity.RESULT_CANCELED)
+        super.onPermissionsDenied()
+    }
 
+    @Suppress("DEPRECATION")
+    override fun onPermissionsGranted() {
         if (intent.action == Intent.ACTION_CREATE_SHORTCUT) {
             val shortcutIntent = Intent(this, ToggleFlashlight::class.java)
 

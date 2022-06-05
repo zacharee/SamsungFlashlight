@@ -1,3 +1,5 @@
 <resources>
-    <string name="app_name">SamsungFlashlight</string>
+    <string name="app_name">Samsung Flashlight</string>
+    <string name="strength">Strength</string>
+    <string name="flashlight">Flashlight</string>
 </resources>

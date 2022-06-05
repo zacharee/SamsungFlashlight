@@ -1,10 +1,13 @@
-package dev.zwander.samsungflashlight
+package dev.zwander.samsungflashlight.util
 
 import android.annotation.SuppressLint
 import android.content.Context
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import java.util.concurrent.ConcurrentLinkedQueue
+
+val Context.eventManager: EventManager
+    get() = EventManager.getInstance(this)
 
 class EventManager private constructor(private val context: Context) {
     companion object {

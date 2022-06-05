@@ -1,42 +1,26 @@
 package dev.zwander.samsungflashlight
 
-import android.content.Context
-import android.content.pm.PackageManager
-import android.hardware.camera2.CameraCharacteristics
-import android.hardware.camera2.CameraManager
-import android.hardware.camera2.CameraManager.TorchCallback
-import android.os.Bundle
-import androidx.activity.ComponentActivity
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import androidx.activity.compose.setContent
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Slider
 import androidx.compose.material.Surface
-import androidx.compose.material.Switch
+import androidx.compose.material.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import dev.zwander.samsungflashlight.activities.BaseActivity
 import dev.zwander.samsungflashlight.ui.theme.SamsungFlashlightTheme
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.asExecutor
-import org.lsposed.hiddenapibypass.HiddenApiBypass
+import dev.zwander.samsungflashlight.util.PrefManager
+import dev.zwander.samsungflashlight.util.prefManager
+import kotlin.math.roundToInt
 
-class MainActivity : ComponentActivity() {
-    private val permissionsLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-        if (!granted) {
-            finish()
-        }
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        HiddenApiBypass.setHiddenApiExemptions("")
-
-        if (checkCallingOrSelfPermission(android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            permissionsLauncher.launch(android.Manifest.permission.CAMERA)
-        }
-
+class MainActivity : BaseActivity() {
+    override fun onPermissionsGranted() {
         setContent {
             MainContent()
         }
@@ -47,44 +31,29 @@ class MainActivity : ComponentActivity() {
 fun MainContent() {
     val context = LocalContext.current
 
-    val camera = remember {
-        context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
+    var strength by remember {
+        mutableStateOf(context.prefManager.lightStrength)
     }
 
-    val id = remember {
-        camera.cameraIdList.map { it to camera.getCameraCharacteristics(it) }
-            .firstOrNull { it.second[CameraCharacteristics.FLASH_INFO_AVAILABLE] }
-            ?.first
-    }
-
-    var cameraEnabled by remember {
-        mutableStateOf(false)
-    }
-
-    LaunchedEffect(key1 = cameraEnabled) {
-        CameraManager::class.java.getDeclaredMethod("setTorchMode", String::class.java, Boolean::class.java, Int::class.java)
-            .invoke(camera, id, cameraEnabled, 5)
+    LaunchedEffect(key1 = strength) {
+        if (context.prefManager.lightStrength != strength) {
+            context.prefManager.lightStrength = strength
+        }
     }
 
     DisposableEffect(key1 = null) {
-        val listener = object : TorchCallback() {
-            override fun onTorchModeChanged(cameraId: String?, enabled: Boolean) {
-                if (cameraId == id) {
-                    cameraEnabled = enabled
-                }
-            }
-
-            override fun onTorchModeUnavailable(cameraId: String?) {
-                if (cameraId == id) {
-                    cameraEnabled = false
+        val listener = OnSharedPreferenceChangeListener { _, key ->
+            when (key) {
+                PrefManager.Keys.KEY_LIGHT_STRENGTH -> {
+                    strength = context.prefManager.lightStrength
                 }
             }
         }
 
-        camera.registerTorchCallback(Dispatchers.Main.asExecutor(), listener)
+        context.prefManager.registerOnSharedPreferenceChangedListener(listener)
 
         onDispose {
-            camera.unregisterTorchCallback(listener)
+            context.prefManager.unregisterOnSharedPreferencesChangedListener(listener)
         }
     }
 
@@ -93,9 +62,38 @@ fun MainContent() {
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colors.background
         ) {
-            Switch(checked = cameraEnabled, onCheckedChange = {
-                cameraEnabled = it
-            })
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    modifier = Modifier.fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.strength)
+                    )
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text(text = "1")
+
+                        Slider(
+                            value = strength.toFloat(),
+                            onValueChange = { strength = it.roundToInt() },
+                            valueRange = 1f..5f,
+                            steps = 3,
+                            modifier = Modifier.weight(1f)
+                        )
+
+                        Text(text = "5")
+                    }
+                }
+            }
         }
     }
 }

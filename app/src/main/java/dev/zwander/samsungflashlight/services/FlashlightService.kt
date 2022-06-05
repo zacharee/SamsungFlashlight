@@ -3,6 +3,8 @@ package dev.zwander.samsungflashlight.services
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CameraManager.TorchCallback
@@ -11,11 +13,14 @@ import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import dev.zwander.samsungflashlight.R
+import dev.zwander.samsungflashlight.util.Event
+import dev.zwander.samsungflashlight.util.PrefManager
+import dev.zwander.samsungflashlight.util.eventManager
+import dev.zwander.samsungflashlight.util.prefManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
-import org.lsposed.hiddenapibypass.HiddenApiBypass
 
-class FlashlightService : Service() {
+class FlashlightService : Service(), OnSharedPreferenceChangeListener {
     companion object {
         private const val EXTRA_FLASHLIGHT_MODE = "flashlight_mode"
 
@@ -48,6 +53,8 @@ class FlashlightService : Service() {
 
                 this@FlashlightService.enabled = enabled
                 isAvailable = true
+
+                eventManager.sendEvent(Event.FlashlightModeChange(enabled))
             }
         }
 
@@ -68,8 +75,6 @@ class FlashlightService : Service() {
     override fun onCreate() {
         super.onCreate()
 
-        HiddenApiBypass.setHiddenApiExemptions("")
-
         val nm = NotificationManagerCompat.from(this)
         nm.createNotificationChannel(NotificationChannelCompat.Builder("main", NotificationManagerCompat.IMPORTANCE_LOW)
             .setName(resources.getString(R.string.app_name)).build())
@@ -84,6 +89,7 @@ class FlashlightService : Service() {
         )
 
         camera.registerTorchCallback(Dispatchers.Main.asExecutor(), modeCallback)
+        prefManager.registerOnSharedPreferenceChangedListener(this)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -100,14 +106,21 @@ class FlashlightService : Service() {
         return super.onStartCommand(intent, flags, startId)
     }
 
+    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
+        when (key) {
+            PrefManager.Keys.KEY_LIGHT_STRENGTH -> if (enabled) setTorchMode(true)
+        }
+    }
+
     override fun onDestroy() {
         super.onDestroy()
 
         camera.unregisterTorchCallback(modeCallback)
+        prefManager.unregisterOnSharedPreferencesChangedListener(this)
     }
 
     private fun setTorchMode(enabled: Boolean) {
         CameraManager::class.java.getDeclaredMethod("setTorchMode", String::class.java, Boolean::class.java, Int::class.java)
-            .invoke(camera, cameraId, enabled, 5)
+            .invoke(camera, cameraId, enabled, prefManager.lightStrength)
     }
 }
