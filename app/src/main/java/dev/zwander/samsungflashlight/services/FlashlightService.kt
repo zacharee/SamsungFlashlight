@@ -13,6 +13,7 @@ import androidx.core.app.NotificationManagerCompat
 import dev.zwander.samsungflashlight.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
+import org.lsposed.hiddenapibypass.HiddenApiBypass
 
 class FlashlightService : Service() {
     companion object {
@@ -66,6 +67,8 @@ class FlashlightService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+
+        HiddenApiBypass.setHiddenApiExemptions("")
 
         val nm = NotificationManagerCompat.from(this)
         nm.createNotificationChannel(NotificationChannelCompat.Builder("main", NotificationManagerCompat.IMPORTANCE_LOW)
