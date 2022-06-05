@@ -17,6 +17,7 @@ import dev.zwander.samsungflashlight.util.Event
 import dev.zwander.samsungflashlight.util.PrefManager
 import dev.zwander.samsungflashlight.util.eventManager
 import dev.zwander.samsungflashlight.util.prefManager
+import dev.zwander.samsungflashlight.widget.ToggleWidget
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
 
@@ -25,10 +26,13 @@ class FlashlightService : Service(), OnSharedPreferenceChangeListener {
         private const val EXTRA_FLASHLIGHT_MODE = "flashlight_mode"
 
         fun start(context: Context, mode: FlashlightMode? = null) {
-            val intent = Intent(context, FlashlightService::class.java)
-            mode?.let { intent.putExtra(EXTRA_FLASHLIGHT_MODE, it) }
+            context.startForegroundService(createIntent(context, mode))
+        }
 
-            context.startForegroundService(intent)
+        fun createIntent(context: Context, mode: FlashlightMode? = null): Intent {
+            return Intent(context, FlashlightService::class.java).apply {
+                mode?.let { putExtra(EXTRA_FLASHLIGHT_MODE, it) }
+            }
         }
     }
 
@@ -122,5 +126,6 @@ class FlashlightService : Service(), OnSharedPreferenceChangeListener {
     private fun setTorchMode(enabled: Boolean) {
         CameraManager::class.java.getDeclaredMethod("setTorchMode", String::class.java, Boolean::class.java, Int::class.java)
             .invoke(camera, cameraId, enabled, prefManager.lightStrength)
+        ToggleWidget.sendUpdate(this)
     }
 }

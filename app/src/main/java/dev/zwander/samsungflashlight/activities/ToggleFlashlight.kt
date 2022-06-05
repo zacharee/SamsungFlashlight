@@ -18,7 +18,7 @@ class ToggleFlashlight : BaseActivity() {
 
             val resultIntent = Intent()
             resultIntent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, shortcutIntent)
-            resultIntent.putExtra(Intent.EXTRA_SHORTCUT_NAME, resources.getString(R.string.app_name))
+            resultIntent.putExtra(Intent.EXTRA_SHORTCUT_NAME, resources.getString(R.string.flashlight))
 
             val iconRes = Intent.ShortcutIconResource.fromContext(
                 this, R.mipmap.ic_launcher
