@@ -20,8 +20,8 @@ class ToggleWidgetViewFactory(private val context: Context) : RemoteViewsFactory
 
     private var flashlightOn = false
         set(value) {
-            ToggleWidget.sendUpdate(context)
             field = value
+            ToggleWidget.sendUpdate(context)
         }
 
     private val listener = object : TorchCallback() {
@@ -72,7 +72,5 @@ class ToggleWidgetViewFactory(private val context: Context) : RemoteViewsFactory
         camera.unregisterTorchCallback(listener)
     }
 
-    override fun onDataSetChanged() {
-
-    }
+    override fun onDataSetChanged() {}
 }

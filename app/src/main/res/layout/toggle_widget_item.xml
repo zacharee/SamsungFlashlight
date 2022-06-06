@@ -17,6 +17,7 @@
             android:layout_height="0dp"
             android:layout_weight="1"
             android:src="@drawable/baseline_flashlight_off_24"
+            android:padding="8dp"
             android:contentDescription="@string/flashlight"
             />
 
