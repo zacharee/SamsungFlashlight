@@ -8,6 +8,7 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CameraManager.TorchCallback
+import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationCompat
@@ -124,7 +125,7 @@ class FlashlightService : Service(), OnSharedPreferenceChangeListener {
     }
 
     private fun setTorchMode(enabled: Boolean) {
-        CameraManager::class.java.getDeclaredMethod("setTorchMode", String::class.java, Boolean::class.java, Int::class.java)
+        CameraManager::class.java.getDeclaredMethod(if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.S_V2) "setTorchMode" else "semSetTorchMode", String::class.java, Boolean::class.java, Int::class.java)
             .invoke(camera, cameraId, enabled, prefManager.lightStrength)
         ToggleWidget.sendUpdate(this)
     }
