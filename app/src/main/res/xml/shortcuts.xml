@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:shortcutId="toggle"
+        android:enabled="true"
+        android:icon="@drawable/baseline_flashlight_on_24"
+        android:shortcutShortLabel="@string/toggle_flashlight"
+        android:shortcutLongLabel="@string/toggle_flashlight">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="dev.zwander.samsungflashlight"
+            android:targetClass="dev.zwander.samsungflashlight.activities.ToggleFlashlight" />
+    </shortcut>
+</shortcuts>

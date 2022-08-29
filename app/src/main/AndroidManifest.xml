@@ -25,6 +25,9 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
+            <meta-data android:name="android.app.shortcuts"
+                android:resource="@xml/shortcuts" />
         </activity>
 
         <activity
@@ -32,10 +35,11 @@
             android:launchMode="singleInstance"
             android:excludeFromRecents="true"
             android:theme="@style/AppTheme.Null"
-            android:label="@string/flashlight"
+            android:label="@string/toggle_flashlight"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.CREATE_SHORTCUT" />
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
