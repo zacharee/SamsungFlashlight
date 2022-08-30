@@ -7,7 +7,7 @@
         android:shortcutShortLabel="@string/toggle_flashlight"
         android:shortcutLongLabel="@string/toggle_flashlight">
         <intent
-            android:action="android.intent.action.VIEW"
+            android:action="android.intent.action.MAIN"
             android:targetPackage="dev.zwander.samsungflashlight"
             android:targetClass="dev.zwander.samsungflashlight.activities.ToggleFlashlight" />
     </shortcut>

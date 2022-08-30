@@ -32,8 +32,10 @@
 
         <activity
             android:name=".activities.ToggleFlashlight"
-            android:launchMode="singleInstance"
+            android:showOnLockScreen="true"
+            android:showWhenLocked="true"
             android:excludeFromRecents="true"
+            android:launchMode="singleInstance"
             android:theme="@style/AppTheme.Null"
             android:label="@string/toggle_flashlight"
             android:exported="true">
@@ -43,6 +45,8 @@
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
